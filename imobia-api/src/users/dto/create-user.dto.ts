@@ -1,128 +1,105 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
-  MaxLength,
-  MinLength,
+  IsDate,
+  IsEnum,
+  IsBoolean,
   IsDateString,
   Matches,
+  MinLength,
+  MaxLength,
+  isNumber,
+  IsNumber,
 } from 'class-validator';
 
+export enum companyType {
+  MEI = 'MEI',
+  LIMITED = 'LIMITED',
+  INDIVIDUAL = 'INDIVIDUAL',
+  ASSOCIATION = 'ASSOCIATION',
+}
+
 export class CreateUserDto {
-  @ApiProperty({
-    title: 'User Name',
-    description: 'Nome do usuário',
-    example: 'Gustavo Victor',
-    minLength: 8,
-    maxLength: 40,
-  })
-  @IsString({ message: 'O campo nome deve ser uma string' })
-  @IsNotEmpty({ message: 'O campo nome não pode ser vazio' })
-  @MinLength(8, { message: 'O campo nome deve ter no mínimo 8 caracteres' })
+  @ApiProperty({ example: 'Gustavo Victor', description: 'Nome completo do usuário' })
+  @IsString()
+  @IsNotEmpty({ message: 'O campo nome é obrigatório' })
   name: string;
 
-  @ApiProperty({
-    title: 'User Email',
-    description: 'E-mail do usuário',
-    example: 'exemplo@email.com',
-    maxLength: 100,
-  })
-  @IsString({ message: 'O campo email deve ser uma string' })
-  @IsNotEmpty({ message: 'O campo email não pode ser vazio' })
-  @IsEmail({}, { message: 'O campo email deve ser um email válido' })
+  @ApiProperty({ example: 'email@exemplo.com', description: 'E-mail do usuário' })
+  @IsEmail({}, { message: 'E-mail inválido' })
+  @IsNotEmpty({ message: 'O campo email é obrigatório' })
   email: string;
 
-  @ApiProperty({
-    title: 'User Password',
-    description: 'Senha do usuário',
-    example: 'senha123',
-    minLength: 8,
-    maxLength: 30,
-  })
-  @IsString({ message: 'O campo senha deve ser uma string' })
-  @IsNotEmpty({ message: 'O campo senha não pode ser vazio' })
-  @MinLength(8, { message: 'O campo senha deve ter no mínimo 8 caracteres' })
-  @MaxLength(30, { message: 'O campo senha deve ter no máximo 30 caracteres' })
+  @ApiProperty({ example: 'senhaSegura123', description: 'Senha do usuário' })
+  @IsString()
+  @MinLength(8, { message: 'A senha deve ter no mínimo 8 caracteres' })
+  @MaxLength(30, { message: 'A senha deve ter no máximo 30 caracteres' })
+  @IsNotEmpty({ message: 'O campo senha é obrigatório' })
   password: string;
 
-  @ApiProperty({
-    title: 'User Phone',
-    description: 'Número de telefone do usuário',
-    example: '11999999999',
-    maxLength: 20,
-  })
-  @IsString({ message: 'O campo telefone deve ser uma string' })
-  @IsNotEmpty({ message: 'O campo telefone não pode ser vazio' })
-  phone: string;
-
-  @ApiProperty({
-    title: 'User Address',
-    description: 'Endereço do usuário',
-    example: 'Rua Arthur Olinger, 123',
-    maxLength: 100,
-  })
+  @ApiProperty({ example: '12345678900', description: 'CPF ou CNPJ do usuário' })
   @IsString()
-  @IsNotEmpty({ message: 'O campo endereço não pode ser vazio' })
+  @Matches(/^\d{11}$|^\d{14}$/, {
+    message: 'CPF deve ter 11 dígitos ou CNPJ 14 dígitos (apenas números)',
+  })
+  cpfCnpj: string;
+
+  @ApiPropertyOptional({ example: '1999-01-01', description: 'Data de nascimento (formato: yyyy-mm-dd)' })
+  @IsOptional()
+  @IsDateString()
+  birthDate?: string;
+
+  @ApiPropertyOptional({ enum: companyType, default: companyType.MEI, description: 'Tipo de empresa (apenas PJ)' })
+  @IsOptional()
+  @IsEnum(companyType, { message: 'Tipo de empresa inválido' })
+  companyType?: companyType;
+
+  @ApiPropertyOptional({ example: '1122223333', description: 'Telefone fixo' })
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @ApiProperty({ example: '11999999999', description: 'Telefone celular' })
+  @IsString()
+  @IsNotEmpty({ message: 'O campo celular é obrigatório' })
+  mobilePhone: string;
+
+  @ApiPropertyOptional({ example: 'https://www.site.com', description: 'Site do usuário' })
+  @IsOptional()
+  @IsString()
+  site?: string;
+
+  @ApiProperty({ example: 'Rua Arthur Olinger', description: 'Endereço do usuário' })
+  @IsString()
+  @IsNotEmpty({ message: 'O campo endereço é obrigatório' })
   address: string;
 
-  @ApiProperty({
-    title: 'User City',
-    description: 'Cidade do usuário',
-    example: 'São Paulo',
-    maxLength: 40,
-  })
+  @ApiProperty({ example: '123', description: 'Número do endereço' })
   @IsString()
-  @IsNotEmpty({ message: 'O campo cidade não pode ser vazio' })
-  city: string;
+  @IsNotEmpty({ message: 'O campo número do endereço é obrigatório' })
+  addressNumber: string;
 
-  @ApiProperty({
-    title: 'User State',
-    description: 'Estado do usuário',
-    example: 'SP',
-    maxLength: 30,
-  })
+  @ApiPropertyOptional({ example: 'Apto 101', description: 'Complemento do endereço' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty({ message: 'O campo estado não pode ser vazio' })
-  state: string;
+  complement?: string;
 
-  @ApiProperty({
-    title: 'User Country',
-    description: 'País do usuário',
-    example: 'Brasil',
-    maxLength: 30,
-  })
+  @ApiProperty({ example: 'Centro', description: 'Bairro ou província do endereço' })
   @IsString()
-  @IsNotEmpty({ message: 'O campo país não pode ser vazio' })
-  country: string;
+  @IsNotEmpty({ message: 'O campo província é obrigatório' })
+  province: string;
 
-  @ApiProperty({
-    title: 'User Zip Code',
-    description: 'CEP do usuário',
-    example: '12345-678',
-  })
+  @ApiProperty({ example: '12345678', description: 'CEP do usuário' })
   @IsString()
-  @IsNotEmpty({ message: 'O campo CEP não pode ser vazio' })
-  @Matches(/^\d{5}-\d{3}$/, {
-    message: 'O campo CEP deve estar no formato 00000-000',
-  })
-  zipCode: string;
+  @IsNotEmpty({ message: 'O campo CEP é obrigatório' })
+  @Matches(/^\d{5}-\d{3}$/)
+  postalCode: string;
 
-  @ApiProperty({
-    title: 'User Birth Date',
-    description: 'Data de nascimento do usuário',
-    example: '01/01/1990',
-  })
-  @IsNotEmpty({ message: 'O campo data de nascimento não pode ser vazio' })
-  @IsDateString(
-    {},
-    {
-      message:
-        'O campo data de nascimento deve ser uma data válida no formato (YYYY-MM-DD)',
-    },
-  )
-  @Matches(/^\d{2}\/\d{2}\/\d{4}$/, {
-    message: 'O campo data deve estar no formato 00/00/0000',
-  })
-  birthDate: string;
+  @ApiProperty({ description: 'ID do usuário no Asaas' })
+  @IsOptional()
+  @IsString()
+  asaasId?: string;
 }

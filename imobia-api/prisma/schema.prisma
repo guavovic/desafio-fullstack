@@ -18,17 +18,21 @@ datasource db {
 
 model User {
   id Int @default(autoincrement()) @id
-  name String  
-  email String @unique
-  password String 
-  phone String? @default("+999 (99) 9 9999-9999")
-  address String? @default("N/A")
-  city String? @default("N/A")
-  state String? @default("N/A")
-  country String? @default("N/A")
-  zipCode String? @default("00000-000")
-  birthDate DateTime? @default("1990-01-01T00:00:00.000Z")
-  isAdmin Boolean? @default(false)
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
+  name String // Nome do usuário
+  email String @unique // E-mail do usuário
+  password String // Senha do usuário
+  cpfCnpj String @unique // CPF ou CNPJ do usuário
+  birthDate DateTime? // Data de nascimento do usuário (somente quando Pessoa Física)
+  companyType String? // Tipo de empresa do usuário (somente quando Pessoa Jurídica)
+  phone String? // Número de telefone do usuário 
+  mobilePhone String // Número de celular do usuário
+  address String // Endereço do usuário
+  addressNumber String // Número do endereço do usuário
+  complement String? // Complemento do endereço do usuário
+  province String // Estado do usuário
+  postalCode String // CEP do usuário
+  asaasId String? // ID do usuário no Asaas
+  isAdmin Boolean @default(false) // Se o usuário é um administrador
+  createdAt DateTime @default(now()) // Data de criação do usuário
+  updatedAt DateTime @updatedAt // Data de atualização do usuário 
 }
